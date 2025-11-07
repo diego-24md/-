@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>¿Quieres ser mi novia?</title>
+  <style>
+    :root{
+      --card:#ffffff;
+      --accent:#ff7aa2;
+      --accent2:#ff9bbc;
+      --accent3:#ffb3c6;
+      --text:#3b3b3b;
+      --muted:#7d7d7d;
+    }
+    html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial;}
+    body{
+      display:flex;align-items:center;justify-content:center;
+      overflow:hidden;
+      animation:bgAnimate 15s ease-in-out infinite alternate;
+      background: linear-gradient(135deg,#ffc0cb,#ffb6c1,#dda0dd,#ee82ee);
+      background-size: 400% 400%;
+    }
+    @keyframes bgAnimate{
+      0% {background-position:0% 50%;}
+      50% {background-position:100% 50%;}
+      100% {background-position:0% 50%;}
+    }
+    .card{
+      width:min(720px,94%);
+      background:linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.95));
+      border-radius:18px;
+      box-shadow:0 10px 30px rgba(17,17,17,0.06);
+      padding:36px;
+      text-align:center;
+      position:relative;
+      z-index:1;
+    }
+    h1{margin:6px 0 8px 0;font-size:2.4rem;color:var(--text);}
+    p.lead{margin:0 0 22px 0;color:var(--muted);font-size:1rem;}
+    .buttons{display:flex;gap:14px;justify-content:center;margin-top:18px;position:relative;min-height:60px;}
+    button{border:0;padding:12px 26px;border-radius:12px;font-size:1rem;cursor:pointer;min-width:120px;box-shadow:0 6px 18px rgba(120,120,120,0.06);transition:transform .16s ease, box-shadow .16s ease, opacity .5s;}
+    button:active{transform:translateY(1px)}
+    .yes{background: linear-gradient(180deg,var(--accent), #ff6b91); color:white;font-weight:600;position:relative;z-index:1;}
+    .no{background: transparent;border:1px solid rgba(125,125,125,0.14);color:var(--text);position:absolute;top:0;left:160px;z-index:0;transition:opacity .5s;}
+    .no.hide{opacity:0;pointer-events:none;}
+    .hint{font-size:0.9rem;color:var(--muted);margin-top:10px}
+
+    /* CORAZON NORMAL MÁS PEQUEÑO */
+    .heart{
+      position: relative;
+      width:60px;
+      height:60px;
+      margin:18px auto 0;
+      display:none;
+      background-color:var(--accent);
+      transform: rotate(-45deg);
+      z-index:1;
+    }
+    .heart::before,
+    .heart::after{
+      content:'';
+      position:absolute;
+      width:60px;
+      height:60px;
+      background-color:var(--accent);
+      border-radius:50%;
+    }
+    .heart::before{top:-30px; left:0;}
+    .heart::after{top:0; left:30px;}
+    .show{display:block;animation:pop .7s cubic-bezier(.2,.9,.3,1);}
+    @keyframes pop{0%{transform:scale(0.2) rotate(-45deg);opacity:0}60%{transform:scale(1.05) rotate(-45deg);opacity:1}100%{transform:scale(1) rotate(-45deg);}}
+
+    .float-area{position:relative;height:80px;margin-top:10px}
+    .tiny{position:absolute;width:14px;height:14px;border-radius:50%;opacity:0;}
+
+    /* CORAZONES FLOTANTES EMOJI */
+    .emoji-heart{
+      position:absolute;
+      font-size:20px;
+      opacity:0;
+      pointer-events:none;
+      z-index:0;
+    }
+    @keyframes floatHeart{
+      0% {transform:translateY(0) scale(1); opacity:1;}
+      100% {transform:translateY(-400px) scale(1.5); opacity:0;}
+    }
+
+    /* CONFETI */
+    .confetti{
+      position:absolute;
+      width:10px;
+      height:10px;
+      background-color:red;
+      opacity:0.8;
+      border-radius:50%;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    @media (max-width:460px){
+      h1{font-size:1.6rem}
+      .card{padding:22px}
+      .buttons{flex-direction:column;align-items:center;}
+      .no{position:relative;left:auto;top:auto;margin-top:12px;}
+    }
+  </style>
+</head>
+<body>
+  <main class="card" role="main" aria-labelledby="pregunta">
+    <h1 id="pregunta">¿Quieres ser mi novia?</h1>
+    <p class="lead">Hoy 07/11/2025 te pregunto si te gustaría ser mi novia? Otra vez xd</p>
+    <div class="heart" id="heart" aria-hidden="true"></div>
+    <div class="buttons" role="group" aria-label="Opciones">
+      <button class="yes" id="btnYes">Sí, me encantaría ❤️</button>
+      <button class="no" id="btnNo">No</button>
+    </div>
+    <p class="hint">TE AMO MUCHO CACHETONA 💕💫</p>
+    <div class="float-area" id="floatArea" aria-hidden="true"></div>
+  </main>
+  <script>
+    const btnYes = document.getElementById('btnYes');
+    const btnNo = document.getElementById('btnNo');
+    const heart = document.getElementById('heart');
+    const floatArea = document.getElementById('floatArea');
+
+    function createEmojiHeart(){
+      const heartEl = document.createElement('div');
+      heartEl.className = 'emoji-heart';
+      heartEl.textContent = '❤️';
+      heartEl.style.left = Math.random() * window.innerWidth + 'px';
+      heartEl.style.fontSize = (12 + Math.random()*20) + 'px';
+      document.body.appendChild(heartEl);
+      const duration = 4000 + Math.random()*2000;
+      heartEl.animate([
+        {transform: 'translateY(0) scale(1)', opacity:1},
+        {transform: `translateY(-${200 + Math.random()*200}px) scale(1.5)`, opacity:0}
+      ], {duration: duration, easing:'ease-out'});
+      setTimeout(()=>heartEl.remove(), duration);
+    }
+
+    // Corazones flotando continuamente
+    setInterval(createEmojiHeart, 500);
+
+    function createConfetti(){
+      for(let i=0;i<30;i++){
+        const conf = document.createElement('div');
+        conf.className = 'confetti';
+        conf.style.backgroundColor = `hsl(${Math.random()*360},80%,60%)`;
+        conf.style.left = Math.random()*window.innerWidth+'px';
+        conf.style.top = Math.random()*window.innerHeight+'px';
+        document.body.appendChild(conf);
+        const dur = 2000 + Math.random()*2000;
+        conf.animate([
+          {transform: 'translateY(0) rotate(0deg)', opacity:1},
+          {transform: `translateY(${Math.random()*400 + 200}px) rotate(${Math.random()*720}deg)`, opacity:0}
+        ], {duration: dur, easing:'ease-out'});
+        setTimeout(()=>conf.remove(), dur);
+      }
+    }
+
+    btnYes.addEventListener('click', ()=>{
+      heart.classList.add('show');
+      document.getElementById('pregunta').textContent = '¡I LOVE YOU SO MUCH, MY BEAUTIFUL GIRL! 🌟';
+      document.querySelector('.lead').textContent = '';
+      document.getElementById('btnYes').textContent = 'Sabía que dirías que sí mi amorcito 🤗';
+      btnNo.classList.add('hide');
+      for(let i=0;i<15;i++) createTiny(i);
+      createConfetti();
+      btnYes.disabled = true;
+    });
+
+    function createTiny(i){
+      const el = document.createElement('div');
+      el.className='tiny';
+      el.style.left = (Math.random()*90)+'%';
+      el.style.top = (80 + Math.random()*50) + 'px';
+      const size = 8 + Math.random()*14;
+      el.style.width = size+'px';
+      el.style.height = size+'px';
+      const colors = ['#ff7aa2','#ff9bbc','#ffb3c6'];
+      el.style.background = colors[Math.floor(Math.random()*colors.length)];
+      floatArea.appendChild(el);
+      const anim = el.animate([
+        { transform: 'translateY(0px)', opacity:1 },
+        { transform: 'translateY(-120px) scale(1.2)', opacity:0 }
+      ],{ duration:1600+Math.random()*900, easing:'cubic-bezier(.2,.9,.3,1)'});
+      anim.onfinish = () => el.remove();
+    }
+
+    function moveNoButton(){
+      const container = document.querySelector('.buttons');
+      const maxX = container.clientWidth - btnNo.offsetWidth;
+      const maxY = container.clientHeight - btnNo.offsetHeight;
+      const randomX = Math.random() * maxX;
+      const randomY = Math.random() * maxY;
+      btnNo.style.left = randomX + 'px';
+      btnNo.style.top = randomY + 'px';
+    }
+
+    btnNo.addEventListener('mouseenter', moveNoButton);
+    btnNo.addEventListener('touchstart', (e)=>{e.preventDefault(); moveNoButton();});
+  </script>
+</body>
+</html>
